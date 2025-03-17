@@ -58,6 +58,10 @@ public class MirrorPlayer : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (other.transform.tag == "Obstacle")
+        {
+            gameObject.GetComponent<Animator>().Play("DissolveEffect");
+        }
         if (other.transform.tag == "Orb")
         {
             //Destroy(other.gameObject);
