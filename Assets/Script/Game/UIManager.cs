@@ -19,6 +19,7 @@ public class UIManager : MonoSingletonGeneric<UIManager>
 
     public GameObject GameoverPrefab;
 
+    public CameraShake cameraShake;
     [HideInInspector]
     public float initialDistance = 0;
 
@@ -26,7 +27,12 @@ public class UIManager : MonoSingletonGeneric<UIManager>
     public void UpdateHealth()
     {
         currentHealthCount--;
-        healthText.text = "X " + currentHealthCount.ToString(); 
+        healthText.text = "X " + currentHealthCount.ToString();
+
+        if (currentHealthCount == 0)
+        { 
+            GameManager.Instance.isGameOver = true;
+        }
     }
 
     public void UpdateCoinCount() 

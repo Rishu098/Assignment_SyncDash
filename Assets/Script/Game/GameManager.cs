@@ -9,5 +9,8 @@ public class GameManager : MonoSingletonGeneric<GameManager>
     public float IncreaseSpeedDistance = 100f;
     public float TotalDistanceToCover = 300f;
 
-    public bool isPlaying = false;
+    public bool isPlaying = true;
+    public bool isGameOver = false;
+
+    public AudioSource CoinCollectSound;
 }

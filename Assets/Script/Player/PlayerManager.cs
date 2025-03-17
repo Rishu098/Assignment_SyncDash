@@ -25,6 +25,8 @@ public class PlayerManager : MonoBehaviour
     private float initialDistance = 0;
     private float distanceRemainigToIncreaseSpeed = 0;
 
+    [SerializeField]
+    private Animator BloodSplatterAnim;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -34,7 +36,7 @@ public class PlayerManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (initialDistance < GameManager.Instance.TotalDistanceToCover)
+        if (initialDistance < GameManager.Instance.TotalDistanceToCover && !GameManager.Instance.isGameOver)
         {
             GameManager.Instance.isPlaying = true;
             // Automatically move forward
@@ -165,7 +167,8 @@ public class PlayerManager : MonoBehaviour
         {
             Destroy(other.gameObject);
             UIManager.Instance.UpdateHealth();
-            CameraShake.TriggerShake(1, .1f);
+            //CameraShake.TriggerShake(1, .1f);
+            BloodSplatterAnim.Play("BloodSplatter");
             VibratePhone();
         }
         if (other.transform.tag == "Orb")
@@ -174,6 +177,7 @@ public class PlayerManager : MonoBehaviour
             var enable = other.GetComponentInChildren<ParticleSystem>().emission;
             enable.enabled = true;
             other.GetComponentInChildren<ParticleSystem>().Play();
+            GameManager.Instance.CoinCollectSound.Play();
         }
     }
 

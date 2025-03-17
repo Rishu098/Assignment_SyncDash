@@ -22,27 +22,27 @@ public class CameraShake : MonoBehaviour
 
     void Update()
     {
-        if(GameManager.Instance.isPlaying)
-            transform.Translate(Vector3.forward * (GameManager.Instance.GameSpeed)* Time.deltaTime);
-        //if (shakeDuration > 0)
-        //{
-        //    // Randomize the camera's position within a sphere
-        //    transform.localPosition = initialPosition + Random.insideUnitSphere * shakeMagnitude;
+        if (shakeDuration > 0)
+        {
+            // Randomize the camera's position within a sphere
+            transform.localPosition = initialPosition + Random.insideUnitSphere * shakeMagnitude;
 
-        //    // Reduce the shake duration over time
-        //    shakeDuration -= Time.deltaTime * dampingSpeed;
-        //}
-        //else
-        //{
-        //    // Reset the camera position when the shake is over
-        //    shakeDuration = 0f;
-        //    transform.localPosition = initialPosition;
-        //}
+            // Reduce the shake duration over time
+            shakeDuration -= Time.deltaTime * dampingSpeed;
+        }
+        else
+        {
+            // Reset the camera position when the shake is over
+            shakeDuration = 0f;
+            //transform.localPosition = initialPosition;
+            gameObject.GetComponent<CameraShake>().enabled = false;
+        }
     }
 
     // Call this method to trigger the camera shake
     public void TriggerShake(float duration, float magnitude)
     {
+        gameObject.GetComponent<CameraShake>().enabled = true;
         shakeDuration = duration;
         shakeMagnitude = magnitude;
     }

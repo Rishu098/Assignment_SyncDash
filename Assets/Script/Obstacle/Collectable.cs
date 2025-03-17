@@ -12,6 +12,6 @@ public class Collectable : MonoBehaviour
     void Update()
     {
         // Rotate
-        transform.Rotate(0,20 * Time.deltaTime,0);
+        transform.Rotate(0,40 * Time.deltaTime,0);
     }
 }
