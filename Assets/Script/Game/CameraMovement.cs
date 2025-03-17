@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Collectable : MonoBehaviour
+public class CameraMovement : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -11,7 +11,7 @@ public class Collectable : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Rotate
-        transform.Rotate(0,200 * Time.deltaTime,0);
+        if (GameManager.Instance.isPlaying)
+            transform.Translate(Vector3.forward * (GameManager.Instance.GameSpeed) * Time.deltaTime);
     }
 }

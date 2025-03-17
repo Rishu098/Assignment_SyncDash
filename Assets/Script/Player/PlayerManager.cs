@@ -27,6 +27,7 @@ public class PlayerManager : MonoBehaviour
 
     [SerializeField]
     private Animator BloodSplatterAnim;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -43,17 +44,15 @@ public class PlayerManager : MonoBehaviour
             characterController.transform.Translate(Vector3.forward * GameManager.Instance.GameSpeed * Time.deltaTime);
             initialDistance += .1f;
             distanceRemainigToIncreaseSpeed += 0.1f;
+
             // Handle swipe input for mobile
             HandleSwipeInput();
 
+            // Handle keyboard input for PC
+            HandleKeyboardInput();
+
             // Trigger position update event
             Invoke("SendPlayerPosition", 0);
-
-            // Jump on tap
-            if (Input.GetMouseButtonDown(0))
-            {
-                Jump();
-            }
 
             if (distanceRemainigToIncreaseSpeed >= GameManager.Instance.IncreaseSpeedDistance)
             {
@@ -68,7 +67,6 @@ public class PlayerManager : MonoBehaviour
                 GameManager.Instance.isPlaying = false;
                 StartCoroutine(Delay());
             }
-
         }
     }
 
@@ -92,6 +90,27 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
+    void HandleKeyboardInput()
+    {
+        // Left movement (A key or Left Arrow)
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            MoveLeft();
+        }
+
+        // Right movement (D key or Right Arrow)
+        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            MoveRight();
+        }
+
+        // Jump (Spacebar)
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Jump();
+        }
+    }
+
     void DetectSwipe()
     {
         float swipeDistance = Vector2.Distance(touchStartPos, touchEndPos);
@@ -112,6 +131,14 @@ public class PlayerManager : MonoBehaviour
                 {
                     // Swipe left
                     MoveLeft();
+                }
+            }
+            else
+            {
+                // Vertical swipe (Jump)
+                if (swipeDirection.y > 0)
+                {
+                    Jump();
                 }
             }
         }
@@ -165,28 +192,37 @@ public class PlayerManager : MonoBehaviour
     {
         if (other.transform.tag == "Obstacle")
         {
-            Destroy(other.gameObject);
             UIManager.Instance.UpdateHealth();
             //CameraShake.TriggerShake(1, .1f);
             BloodSplatterAnim.Play("BloodSplatter");
+            gameObject.GetComponent<Animator>().Play("DissolveEffect");
             VibratePhone();
         }
         if (other.transform.tag == "Orb")
         {
             UIManager.Instance.UpdateCoinCount();
-            var enable = other.GetComponentInChildren<ParticleSystem>().emission;
+            var go = other.gameObject.transform.GetChild(0).gameObject;
+            go.SetActive(true);
+            var enable = go.GetComponent<ParticleSystem>().emission;
             enable.enabled = true;
             other.GetComponentInChildren<ParticleSystem>().Play();
             GameManager.Instance.CoinCollectSound.Play();
+            StartCoroutine(HideParticleSystem(go, other.gameObject));
         }
     }
 
     private IEnumerator Delay()
     {
-
         yield return new WaitForSeconds(3f);
         UIManager.Instance.GameoverPrefab.SetActive(true);
+    }
 
+    private IEnumerator HideParticleSystem(GameObject _go,GameObject parent) {
+        yield return new WaitForSeconds(.3f);
+        var enable = _go.GetComponent<ParticleSystem>().emission;
+        enable.enabled = false;
+        _go.SetActive(false);
+        parent.SetActive(false);
     }
 
     void VibratePhone()

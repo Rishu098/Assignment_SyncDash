@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -43,18 +44,10 @@ public class MirrorPlayer : MonoBehaviour
     void OnPlayerPositionUpdated(Vector3 position)
     {
         // Add the player's position to the queue
-        positionQueue.Enqueue(position);
-
-        // Apply delayed position updates
-        //if (positionQueue.Count > GameManager.Instance.Delay / Time.deltaTime)
-        //{
-            var pos = positionQueue.Dequeue();
-            transform.position = Vector3.Lerp(new Vector3(transform.position.x, transform.position.y, transform.position.z), new Vector3(transform.position.x, transform.position.y, pos.z), 1);
-            UIManager.Instance.UpdateDistance(.1f);
-        //if (positionQueue.Count == 0)
-        //{
-        //}
-        //}
+        positionQueue.Enqueue(position);    
+        var pos = positionQueue.Dequeue();
+        transform.position = Vector3.Lerp(new Vector3(transform.position.x, transform.position.y, transform.position.z), new Vector3(transform.position.x, transform.position.y, pos.z), 1);
+        UIManager.Instance.UpdateDistance(.1f);
     }
 
     void OnPlayerJumped()
@@ -65,15 +58,23 @@ public class MirrorPlayer : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.transform.tag == "Obstacle")
-        {
-            Destroy(other.gameObject);
-        }
-
         if (other.transform.tag == "Orb")
         {
-            Destroy(other.gameObject);
+            //Destroy(other.gameObject);
+            var go = other.gameObject.transform.GetChild(0).gameObject;
+            go.SetActive(true);
+            var enable = go.GetComponent<ParticleSystem>().emission;
+            enable.enabled = true;
+            other.GetComponentInChildren<ParticleSystem>().Play();
+            StartCoroutine(HideParticleSystem(go,other.gameObject));
         }
     }
-
+    private IEnumerator HideParticleSystem(GameObject _go,GameObject parent)
+    {
+        yield return new WaitForSeconds(.1f);
+        var enable = _go.GetComponent<ParticleSystem>().emission;
+        enable.enabled = false;
+        _go.SetActive(false);
+        parent.SetActive(false);
+    }
 }

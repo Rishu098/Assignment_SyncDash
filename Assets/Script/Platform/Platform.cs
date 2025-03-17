@@ -10,11 +10,11 @@ public class Platform : MonoBehaviour
     public int poolSize = 2; // Size of the object pool
 
     public Transform GroundPosition;
-
     public Transform parent;
 
     private Queue<GameObject> objectPool = new Queue<GameObject>();
     private List<GameObject> activeObjects = new List<GameObject>();
+    private int currentPrefabIndex = 0; // Track the current prefab index
     float initialDistance = 0;
 
     void Start()
@@ -30,15 +30,17 @@ public class Platform : MonoBehaviour
 
     void InitializePool()
     {
-
         for (int i = 0; i < poolSize; i++)
         {
-            GameObject obj = Instantiate(prefabList[Random.Range(0, prefabList.Length)]);
-            obj.transform.position = GroundPosition.position + new Vector3(0,0,GroundPosition.position.z + initialDistance);
+            // Spawn prefabs in sequence
+            GameObject obj = Instantiate(prefabList[currentPrefabIndex]);
+            obj.transform.localPosition = GroundPosition.position + new Vector3(0, 0, GroundPosition.position.z + initialDistance);
             obj.transform.SetParent(parent);
-            //initialDistance += 10;
             obj.SetActive(false);
             objectPool.Enqueue(obj);
+
+            // Move to the next prefab in the list
+            currentPrefabIndex = (currentPrefabIndex + 1) % prefabList.Length;
         }
     }
 
@@ -47,11 +49,16 @@ public class Platform : MonoBehaviour
         if (objectPool.Count > 0)
         {
             GameObject obj = objectPool.Dequeue();
-            // obj.transform.position = //GroundPosition.position + new Vector3(0, 0, spawnDistance);//player.position + new Vector3(Random.Range(-5f, 5f), 0, spawnDistance);
             obj.transform.position = GroundPosition.position + new Vector3(0, 0, initialDistance);
             initialDistance += 10;
             obj.SetActive(true);
             activeObjects.Add(obj);
+            foreach (var item in obj.GetComponent<PlatformItems>().PlatFormItems)
+            {
+                item.SetActive(true);
+            } 
+            // Move to the next prefab in the list
+            currentPrefabIndex = (currentPrefabIndex + 1) % prefabList.Length;
         }
     }
 
